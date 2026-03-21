@@ -15,6 +15,7 @@ const GET_HANDLERS = {
   '/api/release': require('./api/release'),
 };
 const POST_HANDLERS = {
+  '/api/auth':    require('./api/auth'),
   '/api/analyze': require('./api/analyze'),
   '/api/identify': require('./api/identify'),
   '/api/collect': require('./api/collect'),

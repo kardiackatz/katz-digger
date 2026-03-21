@@ -631,5 +631,63 @@ body {
   margin-top: 10px;
 }
 
+/* ── Login screen ── */
+.login-screen {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px 28px;
+}
+
+.login-logo { flex-shrink: 0; }
+
+.login-title {
+  font-family: var(--font);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.login-subtitle {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: -8px;
+  margin-bottom: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.login-input { text-align: center; letter-spacing: 4px; }
+
+.login-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 12px;
+  letter-spacing: 4px;
+}
+
+.login-error {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red-score);
+  text-align: center;
+}
+
 /* ── Utility ── */
 .mono { font-family: var(--font); }

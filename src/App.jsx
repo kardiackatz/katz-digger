@@ -7,6 +7,7 @@ import ExtractedDetails from './components/ExtractedDetails.jsx';
 import VariantList from './components/VariantList.jsx';
 import SuccessScreen from './components/SuccessScreen.jsx';
 import LastLogged from './components/LastLogged.jsx';
+import LoginScreen from './components/LoginScreen.jsx';
 import * as api from './api.js';
 
 const STATUS = {
@@ -28,6 +29,7 @@ function saveLog(entries) {
 }
 
 export default function App() {
+  const [sessionToken, setSessionToken]         = useState(null);
   const [mode, setMode]                         = useState('photo');
   const [phase, setPhase]                       = useState('idle');
   const [capturedImage, setCapturedImage]       = useState(null);
@@ -133,6 +135,17 @@ export default function App() {
     setCollectedRelease(null);
     setError(null);
   };
+
+  if (!sessionToken) {
+    return (
+      <LoginScreen
+        onLogin={(token) => {
+          api.setToken(token);
+          setSessionToken(token);
+        }}
+      />
+    );
+  }
 
   if (phase === 'success') {
     return <SuccessScreen release={collectedRelease} onReset={handleReset} />;

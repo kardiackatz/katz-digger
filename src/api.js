@@ -1,5 +1,11 @@
+let _token = null;
+export const setToken = (token) => { _token = token; };
+
 const call = async (url, opts = {}) => {
-  const res = await fetch(url, opts);
+  const headers = { ...opts.headers };
+  if (_token) headers['Authorization'] = `Bearer ${_token}`;
+  const res = await fetch(url, { ...opts, headers });
+  if (res.status === 401) throw new Error('Session expired — please log in again.');
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try { msg = (await res.json()).error || msg; } catch { /* ignore */ }
@@ -7,6 +13,13 @@ const call = async (url, opts = {}) => {
   }
   return res.json();
 };
+
+export const login = (password) =>
+  call('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
 
 export const analyzeImage = (image, mediaType) =>
   call('/api/analyze', {

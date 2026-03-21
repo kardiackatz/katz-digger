@@ -1,6 +1,8 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const { verifyRequest } = require('./_auth');
 
 module.exports = async function handler(req, res) {
+  if (!verifyRequest(req)) return res.status(401).json({ error: 'Unauthorized' });
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
