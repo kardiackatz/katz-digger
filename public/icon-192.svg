@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" fill="#1a1510"/>
+  <circle cx="96" cy="96" r="86" fill="#0d0b08"/>
+  <circle cx="96" cy="96" r="82" fill="none" stroke="#252015" stroke-width="3.5"/>
+  <circle cx="96" cy="96" r="75" fill="none" stroke="#1e1a0e" stroke-width="3.5"/>
+  <circle cx="96" cy="96" r="68" fill="none" stroke="#252015" stroke-width="3.5"/>
+  <circle cx="96" cy="96" r="61" fill="none" stroke="#1e1a0e" stroke-width="3"/>
+  <circle cx="96" cy="96" r="54" fill="none" stroke="#252015" stroke-width="3"/>
+  <circle cx="96" cy="96" r="42" fill="#d4a44a"/>
+  <text x="96" y="84" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="14" letter-spacing="3.5" fill="#3a2200">KATZ</text>
+  <line x1="64" y1="97" x2="82" y2="97" stroke="#3a2200" stroke-width="1.2"/>
+  <text x="96" y="103" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="7" letter-spacing="1.5" fill="#3a2200">RECORDS</text>
+  <line x1="110" y1="97" x2="128" y2="97" stroke="#3a2200" stroke-width="1.2"/>
+  <text x="96" y="116" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="12" letter-spacing="2.5" fill="#3a2200">DIGGER</text>
+  <circle cx="96" cy="96" r="6.5" fill="#0d0b08"/>
+</svg>

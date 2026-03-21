@@ -1,0 +1,24 @@
+{
+  "name": "Katz Digger",
+  "short_name": "Katz Digger",
+  "description": "Identify vinyl record pressings and add to your Discogs collection",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1510",
+  "theme_color": "#d4a44a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

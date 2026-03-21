@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background square (maskable safe zone) -->
+  <rect width="512" height="512" fill="#1a1510"/>
+  <!-- Record body -->
+  <circle cx="256" cy="256" r="230" fill="#0d0b08"/>
+  <!-- Vinyl grooves -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="#252015" stroke-width="9"/>
+  <circle cx="256" cy="256" r="202" fill="none" stroke="#1e1a0e" stroke-width="9"/>
+  <circle cx="256" cy="256" r="184" fill="none" stroke="#252015" stroke-width="9"/>
+  <circle cx="256" cy="256" r="166" fill="none" stroke="#1e1a0e" stroke-width="9"/>
+  <circle cx="256" cy="256" r="148" fill="none" stroke="#252015" stroke-width="8"/>
+  <circle cx="256" cy="256" r="132" fill="none" stroke="#1e1a0e" stroke-width="7"/>
+  <!-- Gold label -->
+  <circle cx="256" cy="256" r="112" fill="#d4a44a"/>
+  <!-- KATZ -->
+  <text x="256" y="225" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="38" letter-spacing="10" fill="#3a2200">KATZ</text>
+  <!-- Thin rule – RECORDS – thin rule -->
+  <line x1="170" y1="262" x2="218" y2="262" stroke="#3a2200" stroke-width="3"/>
+  <text x="256" y="274" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="19" letter-spacing="4" fill="#3a2200">RECORDS</text>
+  <line x1="294" y1="262" x2="342" y2="262" stroke="#3a2200" stroke-width="3"/>
+  <!-- DIGGER -->
+  <text x="256" y="310" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="33" letter-spacing="8" fill="#3a2200">DIGGER</text>
+  <!-- Spindle hole -->
+  <circle cx="256" cy="256" r="17" fill="#0d0b08"/>
+</svg>

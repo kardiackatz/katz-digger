@@ -1,0 +1,24 @@
+{
+  "name": "katz-digger",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "dev:server": "node server.dev.js",
+    "dev:all": "concurrently -n api,ui -c cyan,magenta \"node server.dev.js\" \"vite\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "vite": "^5.4.10"
+  }
+}
