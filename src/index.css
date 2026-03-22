@@ -189,6 +189,9 @@ body {
   padding: 7px 13px;
   border-bottom: 1px solid var(--border);
   background: var(--gold-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .extracted-badge {
   font-size: 8px;
@@ -196,6 +199,12 @@ body {
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--gold);
+}
+.extracted-completeness {
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-3);
 }
 .extracted-fields { display: flex; flex-direction: column; }
 .extracted-field {
@@ -206,8 +215,65 @@ body {
   padding: 6px 13px;
   border-bottom: 1px solid var(--border);
   font-size: 10px;
+  transition: background 0.1s;
 }
 .extracted-field:last-child { border-bottom: none; }
+
+/* Editable field states */
+.extracted-field--editable { cursor: pointer; }
+.extracted-field--editable:hover { background: var(--gold-dim); }
+.extracted-field--editing  { background: var(--gold-dim); cursor: default; }
+.extracted-field--empty .field-value { color: var(--text-faint); font-style: italic; }
+
+/* Inline edit input */
+.field-edit-input {
+  flex: 1;
+  background: var(--card-2);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: var(--gold);
+  font-family: var(--font);
+  font-size: 10px;
+  outline: none;
+  text-align: right;
+  min-width: 0;
+}
+
+/* ── Photo scan bar (after extraction) ── */
+.photo-scan-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 2px 0;
+}
+.photo-count {
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ── Photo action buttons (Search + Add Details) ── */
+.photo-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.photo-search-btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+/* Active state for toggle buttons */
+.btn--active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: var(--gold-dim);
+}
 .field-key {
   font-size: 8px;
   letter-spacing: 2px;

@@ -28,18 +28,34 @@ function saveLog(entries) {
   try { localStorage.setItem('katz_digger_log', JSON.stringify(entries)); } catch { /* ignore */ }
 }
 
+/**
+ * Merge two extracted-detail objects.
+ * Incoming values fill empty fields; they never overwrite existing ones.
+ * The user can override anything via inline edit.
+ */
+function mergeExtracted(existing, incoming) {
+  if (!existing) return incoming;
+  const merged = { ...existing };
+  for (const [key, val] of Object.entries(incoming)) {
+    if (val && !existing[key]) merged[key] = val;
+  }
+  return merged;
+}
+
 export default function App() {
-  const [sessionToken, setSessionToken]         = useState(null);
-  const [mode, setMode]                         = useState('photo');
-  const [phase, setPhase]                       = useState('idle');
-  const [capturedImage, setCapturedImage]       = useState(null);
-  const [extractedDetails, setExtractedDetails] = useState(null);
+  const [sessionToken, setSessionToken]             = useState(null);
+  const [mode, setMode]                             = useState('photo');
+  const [phase, setPhase]                           = useState('idle');
+  const [capturedImage, setCapturedImage]           = useState(null);
+  const [extractedDetails, setExtractedDetails]     = useState(null);
   const [fullReleaseDetails, setFullReleaseDetails] = useState({});
-  const [rankedMatches, setRankedMatches]       = useState([]);
-  const [manualResults, setManualResults]       = useState([]);
-  const [collectedRelease, setCollectedRelease] = useState(null);
-  const [error, setError]                       = useState(null);
-  const [recentLogs, setRecentLogs]             = useState(loadLog);
+  const [rankedMatches, setRankedMatches]           = useState([]);
+  const [manualResults, setManualResults]           = useState([]);
+  const [collectedRelease, setCollectedRelease]     = useState(null);
+  const [error, setError]                           = useState(null);
+  const [recentLogs, setRecentLogs]                 = useState(loadLog);
+  const [photoCount, setPhotoCount]                 = useState(0);
+  const [showAddDetails, setShowAddDetails]         = useState(false);
 
   /* ── Persist a logged entry ── */
   const appendLog = (releaseInfo) => {
@@ -49,20 +65,34 @@ export default function App() {
     saveLog(updated);
   };
 
-  /* ── Photo flow ── */
-  const runPhotoFlow = async (base64, mediaType) => {
+  /* ── Analyze one photo and merge into accumulated details ── */
+  const runAnalysis = async (base64, mediaType, dataUrl) => {
     setError(null);
+    setCapturedImage(dataUrl);
+    setPhase('analyzing');
     try {
-      setPhase('analyzing');
       const details = await api.analyzeImage(base64, mediaType);
-      setExtractedDetails(details);
+      setExtractedDetails((prev) => mergeExtracted(prev, details));
+      setPhotoCount((n) => n + 1);
+      setPhase('extracted');
+    } catch (err) {
+      setError(err.message);
+      setPhase('error');
+    }
+  };
 
-      setPhase('searching');
+  /* ── Search + identify using whatever details we have ── */
+  const runSearch = async () => {
+    if (!extractedDetails) return;
+    setError(null);
+    setShowAddDetails(false);
+    setPhase('searching');
+    try {
       const searchData = await api.searchDiscogs({
-        artist:  details.artist,
-        title:   details.title,
-        catno:   details.catalog_number,
-        barcode: details.barcode,
+        artist:  extractedDetails.artist,
+        title:   extractedDetails.title,
+        catno:   extractedDetails.catalog_number,
+        barcode: extractedDetails.barcode,
       });
 
       const top8 = (searchData.results || []).slice(0, 8);
@@ -86,7 +116,7 @@ export default function App() {
       });
       setFullReleaseDetails(detailsMap);
 
-      const ranked = await api.identifyPressing(details, valid);
+      const ranked = await api.identifyPressing(extractedDetails, valid);
       setRankedMatches(ranked);
       setPhase('results');
     } catch (err) {
@@ -134,6 +164,8 @@ export default function App() {
     setManualResults([]);
     setCollectedRelease(null);
     setError(null);
+    setPhotoCount(0);
+    setShowAddDetails(false);
   };
 
   if (!sessionToken) {
@@ -173,16 +205,33 @@ export default function App() {
           <PhotoMode
             phase={phase}
             capturedImage={capturedImage}
+            photoCount={photoCount}
             statusMessage={STATUS[phase]}
-            onCapture={(base64, mediaType, dataUrl) => {
-              setCapturedImage(dataUrl);
-              runPhotoFlow(base64, mediaType);
-            }}
+            onCapture={(base64, mediaType, dataUrl) => runAnalysis(base64, mediaType, dataUrl)}
             onReset={handleReset}
           />
 
           {extractedDetails && phase !== 'idle' && (
-            <ExtractedDetails details={extractedDetails} />
+            <ExtractedDetails
+              details={extractedDetails}
+              onChange={phase === 'extracted' ? setExtractedDetails : undefined}
+              showEmpty={showAddDetails}
+            />
+          )}
+
+          {/* Action row — visible only in 'extracted' phase */}
+          {phase === 'extracted' && (
+            <div className="photo-actions">
+              <button className="btn-primary photo-search-btn" onClick={runSearch}>
+                Search Discogs
+              </button>
+              <button
+                className={`btn-secondary btn-sm${showAddDetails ? ' btn--active' : ''}`}
+                onClick={() => setShowAddDetails((v) => !v)}
+              >
+                {showAddDetails ? 'Hide Fields' : '+ Add Details'}
+              </button>
+            </div>
           )}
 
           {hasResults && rankedMatches.length > 0 && (
@@ -193,7 +242,6 @@ export default function App() {
             />
           )}
 
-          {/* Show Last Logged only on idle home screen */}
           {phase === 'idle' && <LastLogged entries={recentLogs} />}
         </>
       ) : (
