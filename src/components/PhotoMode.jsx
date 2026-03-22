@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 const LOADING = new Set(['analyzing', 'searching', 'identifying']);
 
-export default function PhotoMode({ phase, capturedImage, statusMessage, onCapture, onReset }) {
+export default function PhotoMode({ phase, capturedImage, photoCount, statusMessage, onCapture, onReset }) {
   const inputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -17,12 +17,26 @@ export default function PhotoMode({ phase, capturedImage, statusMessage, onCaptu
     reader.readAsDataURL(file);
   };
 
+  // Hidden file input — always rendered so any branch can trigger it
+  const fileInput = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      capture="environment"
+      onChange={handleFileChange}
+      style={{ display: 'none' }}
+      aria-label="Capture record photo"
+    />
+  );
+
   const isLoading = LOADING.has(phase);
   const isDone    = phase === 'results' || phase === 'error';
 
   if (isLoading) {
     return (
       <div className="photo-status">
+        {fileInput}
         {capturedImage && (
           <img src={capturedImage} className="captured-preview" alt="Captured record" />
         )}
@@ -34,9 +48,34 @@ export default function PhotoMode({ phase, capturedImage, statusMessage, onCaptu
     );
   }
 
+  if (phase === 'extracted') {
+    return (
+      <div className="photo-status">
+        {fileInput}
+        {capturedImage && (
+          <img src={capturedImage} className="captured-preview" alt="Last captured" />
+        )}
+        <div className="photo-scan-bar">
+          {photoCount > 0 && (
+            <span className="photo-count">
+              {photoCount} photo{photoCount !== 1 ? 's' : ''} scanned
+            </span>
+          )}
+          <button
+            className="btn-secondary btn-sm"
+            onClick={() => inputRef.current?.click()}
+          >
+            + Snap Another
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (isDone) {
     return (
       <div className="photo-status">
+        {fileInput}
         {capturedImage && (
           <img src={capturedImage} className="captured-preview" alt="Captured record" />
         )}
@@ -45,17 +84,10 @@ export default function PhotoMode({ phase, capturedImage, statusMessage, onCaptu
     );
   }
 
+  // Idle — show camera prompt
   return (
     <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-        aria-label="Capture record photo"
-      />
+      {fileInput}
       <div
         className="camera-prompt"
         onClick={() => inputRef.current?.click()}
