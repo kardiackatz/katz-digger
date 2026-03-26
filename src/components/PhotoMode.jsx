@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 const LOADING = new Set(['analyzing', 'searching', 'identifying']);
 
-export default function PhotoMode({ phase, capturedImage, photoCount, statusMessage, onCapture, onReset }) {
+export default function PhotoMode({ phase, capturedImage, statusMessage, onCapture, onReset }) {
   const inputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -17,7 +17,6 @@ export default function PhotoMode({ phase, capturedImage, photoCount, statusMess
     reader.readAsDataURL(file);
   };
 
-  // Hidden file input — always rendered so any branch can trigger it
   const fileInput = (
     <input
       ref={inputRef}
@@ -48,26 +47,14 @@ export default function PhotoMode({ phase, capturedImage, photoCount, statusMess
     );
   }
 
+  // After extraction — just show the captured image, actions are rendered by App
   if (phase === 'extracted') {
     return (
       <div className="photo-status">
         {fileInput}
         {capturedImage && (
-          <img src={capturedImage} className="captured-preview" alt="Last captured" />
+          <img src={capturedImage} className="captured-preview" alt="Captured record" />
         )}
-        <div className="photo-scan-bar">
-          {photoCount > 0 && (
-            <span className="photo-count">
-              {photoCount} photo{photoCount !== 1 ? 's' : ''} scanned
-            </span>
-          )}
-          <button
-            className="btn-secondary btn-sm"
-            onClick={() => inputRef.current?.click()}
-          >
-            + Snap Another
-          </button>
-        </div>
       </div>
     );
   }
@@ -84,7 +71,7 @@ export default function PhotoMode({ phase, capturedImage, photoCount, statusMess
     );
   }
 
-  // Idle — show camera prompt
+  // Idle — camera prompt
   return (
     <>
       {fileInput}

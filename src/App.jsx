@@ -28,34 +28,19 @@ function saveLog(entries) {
   try { localStorage.setItem('katz_digger_log', JSON.stringify(entries)); } catch { /* ignore */ }
 }
 
-/**
- * Merge two extracted-detail objects.
- * Incoming values fill empty fields; they never overwrite existing ones.
- * The user can override anything via inline edit.
- */
-function mergeExtracted(existing, incoming) {
-  if (!existing) return incoming;
-  const merged = { ...existing };
-  for (const [key, val] of Object.entries(incoming)) {
-    if (val && !existing[key]) merged[key] = val;
-  }
-  return merged;
-}
-
 export default function App() {
   const [sessionToken, setSessionToken]             = useState(null);
   const [mode, setMode]                             = useState('photo');
   const [phase, setPhase]                           = useState('idle');
   const [capturedImage, setCapturedImage]           = useState(null);
   const [extractedDetails, setExtractedDetails]     = useState(null);
+  const [matrix, setMatrix]                         = useState('');
   const [fullReleaseDetails, setFullReleaseDetails] = useState({});
   const [rankedMatches, setRankedMatches]           = useState([]);
   const [manualResults, setManualResults]           = useState([]);
   const [collectedRelease, setCollectedRelease]     = useState(null);
   const [error, setError]                           = useState(null);
   const [recentLogs, setRecentLogs]                 = useState(loadLog);
-  const [photoCount, setPhotoCount]                 = useState(0);
-  const [showAddDetails, setShowAddDetails]         = useState(false);
 
   /* ── Persist a logged entry ── */
   const appendLog = (releaseInfo) => {
@@ -65,15 +50,15 @@ export default function App() {
     saveLog(updated);
   };
 
-  /* ── Analyze one photo and merge into accumulated details ── */
-  const runAnalysis = async (base64, mediaType, dataUrl) => {
+  /* ── Photo flow: analyze then pause for optional matrix input ── */
+  const handleCapture = async (base64, mediaType, dataUrl) => {
     setError(null);
     setCapturedImage(dataUrl);
     setPhase('analyzing');
     try {
       const details = await api.analyzeImage(base64, mediaType);
-      setExtractedDetails((prev) => mergeExtracted(prev, details));
-      setPhotoCount((n) => n + 1);
+      setExtractedDetails(details);
+      setMatrix(details.matrix || '');
       setPhase('extracted');
     } catch (err) {
       setError(err.message);
@@ -81,18 +66,22 @@ export default function App() {
     }
   };
 
-  /* ── Search + identify using whatever details we have ── */
+  /* ── Search + identify using extracted details + optional matrix ── */
   const runSearch = async () => {
     if (!extractedDetails) return;
     setError(null);
-    setShowAddDetails(false);
     setPhase('searching');
+
+    // Merge manually-entered matrix in (overrides or fills what Claude found)
+    const details = { ...extractedDetails };
+    if (matrix.trim()) details.matrix = matrix.trim();
+
     try {
       const searchData = await api.searchDiscogs({
-        artist:  extractedDetails.artist,
-        title:   extractedDetails.title,
-        catno:   extractedDetails.catalog_number,
-        barcode: extractedDetails.barcode,
+        artist:  details.artist,
+        title:   details.title,
+        catno:   details.catalog_number,
+        barcode: details.barcode,
       });
 
       const top8 = (searchData.results || []).slice(0, 8);
@@ -116,7 +105,7 @@ export default function App() {
       });
       setFullReleaseDetails(detailsMap);
 
-      const ranked = await api.identifyPressing(extractedDetails, valid);
+      const ranked = await api.identifyPressing(details, valid);
       setRankedMatches(ranked);
       setPhase('results');
     } catch (err) {
@@ -159,13 +148,12 @@ export default function App() {
     setPhase('idle');
     setCapturedImage(null);
     setExtractedDetails(null);
+    setMatrix('');
     setFullReleaseDetails({});
     setRankedMatches([]);
     setManualResults([]);
     setCollectedRelease(null);
     setError(null);
-    setPhotoCount(0);
-    setShowAddDetails(false);
   };
 
   if (!sessionToken) {
@@ -205,33 +193,35 @@ export default function App() {
           <PhotoMode
             phase={phase}
             capturedImage={capturedImage}
-            photoCount={photoCount}
             statusMessage={STATUS[phase]}
-            onCapture={(base64, mediaType, dataUrl) => runAnalysis(base64, mediaType, dataUrl)}
+            onCapture={handleCapture}
             onReset={handleReset}
           />
 
           {extractedDetails && phase !== 'idle' && (
-            <ExtractedDetails
-              details={extractedDetails}
-              onChange={phase === 'extracted' ? setExtractedDetails : undefined}
-              showEmpty={showAddDetails}
-            />
+            <ExtractedDetails details={extractedDetails} />
           )}
 
-          {/* Action row — visible only in 'extracted' phase */}
+          {/* Matrix input + Search — only shown in extracted phase */}
           {phase === 'extracted' && (
-            <div className="photo-actions">
-              <button className="btn-primary photo-search-btn" onClick={runSearch}>
+            <>
+              <div className="extracted-card">
+                <div className="extracted-field">
+                  <span className="field-key">Matrix / Runout</span>
+                  <input
+                    className="field-matrix-input"
+                    type="text"
+                    placeholder="optional"
+                    value={matrix}
+                    onChange={(e) => setMatrix(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && runSearch()}
+                  />
+                </div>
+              </div>
+              <button className="btn-primary btn-search-discogs" onClick={runSearch}>
                 Search Discogs
               </button>
-              <button
-                className={`btn-secondary btn-sm${showAddDetails ? ' btn--active' : ''}`}
-                onClick={() => setShowAddDetails((v) => !v)}
-              >
-                {showAddDetails ? 'Hide Fields' : '+ Add Details'}
-              </button>
-            </div>
+            </>
           )}
 
           {hasResults && rankedMatches.length > 0 && (
